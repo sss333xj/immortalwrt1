@@ -12,11 +12,9 @@ jobs:
 
       - name: Use minimal feeds
         run: |
-          # Use only basic feeds, comment out problematic ones
           cat > feeds.conf.default << 'EOF'
           src-git packages https://github.com/immortalwrt/packages.git
           src-git luci https://github.com/immortalwrt/luci.git
-          src-git routing https://github.com/openwrt/routing.git
           EOF
 
       - name: Update feeds
@@ -24,8 +22,24 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      - name: Create clean config
+        run: |
+          cat > .config << 'EOFCONFIG'
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_DEVICE_generic=y
+          CONFIG_TARGET_ROOTFS_PARTSIZE=5120
+          CONFIG_LUCI_LANG_chinese=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_dnsmasq=y
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_odhcpd=y
+          CONFIG_PACKAGE_opkg=y
+          EOFCONFIG
+
       - name: Build x86_64
         uses: immortalwrt/gh-action-sdk@v1
         with:
           target: x86_64
-          partitionsize: 5120
+          config_file: .config
