@@ -30,8 +30,7 @@ jobs:
       - name: Config x86_64
         run: |
           make defconfig
-          # Set x86_64 and 5120mb partition
-          sed -i 's/^CONFIG_TARGET_x86_64=y/CONFIG_TARGET_x86_64=y\nCONFIG_TARGET_ROOTFS_PARTSIZE=5120/' .config
+          sed -i 's/CONFIG_TARGET_x86_64=y/CONFIG_TARGET_x86_64=y\nCONFIG_TARGET_ROOTFS_PARTSIZE=4096/' .config
           make defconfig
 
       - name: Build x86_64
@@ -41,7 +40,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: immortalwrt-x86_64
+          name: immortalwrt-x86_64-4096mb
           path: |
             bin/targets/x86_64/generic/**/*.img
             bin/targets/x86_64/generic/**/*.bin
