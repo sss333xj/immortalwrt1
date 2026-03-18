@@ -29,19 +29,10 @@ jobs:
 
       - name: Config x86_64
         run: |
-          cat > .config << 'EOFCONFIG'
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_DEVICE_generic=y
-          CONFIG_TARGET_ROOTFS_PARTSIZE=5120
-          CONFIG_LUCI_LANG_chinese=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_luci-app-firewall=y
-          CONFIG_PACKAGE_dnsmasq=y
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_odhcpd=y
-          CONFIG_PACKAGE_opkg=y
-          EOFCONFIG
+          make defconfig
+          # Set x86_64 and 5120mb partition
+          sed -i 's/^CONFIG_TARGET_x86_64=y/CONFIG_TARGET_x86_64=y\nCONFIG_TARGET_ROOTFS_PARTSIZE=5120/' .config
+          make defconfig
 
       - name: Build x86_64
         run: |
