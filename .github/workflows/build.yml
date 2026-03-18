@@ -18,7 +18,13 @@ jobs:
       - name: Prepare config
         run: |
           make defconfig
+          # Disable problematic packages
+          sed -i 's/CONFIG_PACKAGE_kamailio-mod-http-client=y/# CONFIG_PACKAGE_kamailio-mod-http-client is not set/' .config
+          sed -i 's/CONFIG_PACKAGE_kamailio-mod-lost=y/# CONFIG_PACKAGE_kamailio-mod-lost is not set/' .config
+          sed -i 's/CONFIG_PACKAGE_kamailio-mod-presence-xml=y/# CONFIG_PACKAGE_kamailio-mod-presence-xml is not set/' .config
+          sed -i 's/CONFIG_PACKAGE_kamailio-mod-xcap-client=y/# CONFIG_PACKAGE_kamailio-mod-xcap-client is not set/' .config
           sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=5120/' .config
+          cat .config | grep -E "ROOTFS_PARTSIZE|kamailio"
 
       - name: Build x86_64
         uses: immortalwrt/gh-action-sdk@v1
