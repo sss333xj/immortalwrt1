@@ -21,3 +21,5 @@ jobs:
           target: x86_64
           patches: true
           config_file: .config
+- name: Clean build
+  run: make clean
