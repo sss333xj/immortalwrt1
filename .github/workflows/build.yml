@@ -27,11 +27,21 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a -f
 
-      - name: Config x86_64
+      - name: Create x86_64 config
         run: |
-          make defconfig
-          sed -i 's/CONFIG_TARGET_x86_64=y/CONFIG_TARGET_x86_64=y\nCONFIG_TARGET_ROOTFS_PARTSIZE=4096/' .config
-          make defconfig
+          cat > .config << 'EOFCONFIG'
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_DEVICE_generic=y
+          CONFIG_TARGET_ROOTFS_PARTSIZE=4096
+          CONFIG_LUCI_LANG_chinese=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_dnsmasq=y
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_odhcpd=y
+          CONFIG_PACKAGE_opkg=y
+          EOFCONFIG
 
       - name: Build x86_64
         run: |
@@ -42,6 +52,4 @@ jobs:
         with:
           name: immortalwrt-x86_64-4096mb
           path: |
-            bin/targets/x86_64/generic/**/*.img
-            bin/targets/x86_64/generic/**/*.bin
-            bin/targets/x86_64/generic/**/*.tar
+            bin/targets/x86_64/generic/**
