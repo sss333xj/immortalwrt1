@@ -30,10 +30,15 @@ jobs:
       - name: Config x86_64
         run: |
           make defconfig
-          sed -i 's/# CONFIG_TARGET_x86_64 is not set/CONFIG_TARGET_x86_64=y/' .config
-          sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=4096/' .config
-          grep CONFIG_TARGET_x86_64 .config
-          grep CONFIG_TARGET_ROOTFS_PARTSIZE .config
+          # 替换整行来设置 x86_64
+          sed -i 's/.*CONFIG_TARGET_x86_64.*/CONFIG_TARGET_x86_64=y/' .config
+          # 添加或修改分区大小
+          if ! grep -q "CONFIG_TARGET_ROOTFS_PARTSIZE" .config; then
+            echo "CONFIG_TARGET_ROOTFS_PARTSIZE=4096" >> .config
+          else
+            sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=4096/' .config
+          fi
+          cat .config | grep -E "CONFIG_TARGET_x86|CONFIG_TARGET_ROOTFS"
 
       - name: Build x86_64
         run: |
