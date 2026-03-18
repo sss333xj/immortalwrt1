@@ -2,11 +2,6 @@ name: Build ImmortalWrt
 
 on:
   workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Debug mode'
-        required: false
-        default: '0'
 
 jobs:
   build:
@@ -20,9 +15,13 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      - name: Prepare config
+        run: |
+          make defconfig
+          sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=5120/' .config
+
       - name: Build x86_64
         uses: immortalwrt/gh-action-sdk@v1
         with:
           target: x86_64
-          patches: true
           config_file: .config
