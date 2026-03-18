@@ -10,36 +10,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use minimal feeds
+      - name: Setup Ubuntu
         run: |
-          cat > feeds.conf.default << 'EOF'
-          src-git packages https://github.com/immortalwrt/packages.git
-          src-git luci https://github.com/immortalwrt/luci.git
-          EOF
+          sudo apt-get update
+          sudo apt-get install -y build-essential ccache git libncurses5-dev libssl-dev python3 python3-distutils
 
       - name: Update feeds
         run: |
           ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          ./scripts/feeds install -a -f
 
-      - name: Create clean config
+      - name: Clean
         run: |
-          cat > .config << 'EOFCONFIG'
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_DEVICE_generic=y
-          CONFIG_TARGET_ROOTFS_PARTSIZE=5120
-          CONFIG_LUCI_LANG_chinese=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_luci-app-firewall=y
-          CONFIG_PACKAGE_dnsmasq=y
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_odhcpd=y
-          CONFIG_PACKAGE_opkg=y
-          EOFCONFIG
+          make clean
+          rm -rf ./build_dir ./staging_dir ./tmp
 
-      - name: Build x86_64
-        uses: immortalwrt/gh-action-sdk@v1
-        with:
-          target: x86_64
-          config_file: .config
+      - name: Config
+        run: |
+          make defconfig
+          sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=5120/' .config
+          make defconfig
+
+      - name: Download
+        run: make download -j$(nproc)
+
+      - name: Build
+        run: |
+          make -j$(nproc) world V=s 2>&1 | tail -100
