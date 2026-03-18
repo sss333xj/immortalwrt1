@@ -27,21 +27,13 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a -f
 
-      - name: Create x86_64 config
+      - name: Config x86_64
         run: |
-          cat > .config << 'EOFCONFIG'
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_DEVICE_generic=y
-          CONFIG_TARGET_ROOTFS_PARTSIZE=4096
-          CONFIG_LUCI_LANG_chinese=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_luci-app-firewall=y
-          CONFIG_PACKAGE_dnsmasq=y
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_odhcpd=y
-          CONFIG_PACKAGE_opkg=y
-          EOFCONFIG
+          make defconfig
+          sed -i 's/# CONFIG_TARGET_x86_64 is not set/CONFIG_TARGET_x86_64=y/' .config
+          sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=4096/' .config
+          grep CONFIG_TARGET_x86_64 .config
+          grep CONFIG_TARGET_ROOTFS_PARTSIZE .config
 
       - name: Build x86_64
         run: |
