@@ -39,4 +39,4 @@ source "target/toolchain/Config.in"
 
 source "tmp/.config-package.in"
 
-CONFIG_TARGET_ROOTFS_PARTSIZE=5120
+CONFIG_TARGET_ROOTFS_PARTSIZE=4096
